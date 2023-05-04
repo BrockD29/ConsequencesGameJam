@@ -2,17 +2,26 @@ using UnityEngine;
 
 public class Spy : MonoBehaviour
 {
+    public bool crouch = false;
     public float speed;
 
-    // Start is called before the first frame update
     void Start()
     {
         
     }
 
-    // Update is called once per frame
     void Update()
     {
+        //Crouch Speed
+        if (crouch == true)
+        {
+            speed = 2.5f;
+        }
+        else
+        {
+            speed = 5.0f;
+        }
+
         //Spy Movement
         if (Input.GetAxis("Vertical") > 0)
         {
@@ -32,5 +41,10 @@ public class Spy : MonoBehaviour
             transform.position -= transform.right * Time.deltaTime * speed;
         }
 
+        //Toggle Crouch
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            crouch = (crouch == false) ? true : false;
+        }
     }
 }
