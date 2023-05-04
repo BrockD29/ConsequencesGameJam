@@ -8,51 +8,94 @@ public class Enemy : MonoBehaviour
     private bool alertMode = false;
     private int health;
     private float speed;
-    private float timer = 0;
+    private float timer = 0.0f;
     private int facingDirection;
+    public string patrolOrientation;
+    private enum Orientation { UP, DOWN, RIGHT, LEFT };
+    private Orientation orientation;
+    public int patrolLength;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        if(patrolOrientation == "vertical")
+        {
+            orientation = Orientation.UP;
+            facingDirection = 0;
+        }
+        else if(patrolOrientation == "horizontal")
+        {
+            orientation = Orientation.RIGHT;
+            facingDirection = 1;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
         timer += Time.deltaTime;
-        Debug.Log(timer);
 
-        if(timer >= 5 && alertMode == false)
+        if(timer >= patrolLength && alertMode == false)
         {
-            facingDirection = Random.Range(0, 3);
+            ChangeDirection();
+            timer = 0;
         }
 
-        if(facingDirection == 0)
+        if (facingDirection == 0)
         {
-            transform.position += transform.forward * Time.deltaTime * speed;
+            transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
+            transform.position += Vector3.up * Time.deltaTime * speed;
+            Debug.Log("Up");
         }
         else if (facingDirection == 1)
         {
-            transform.position -= transform.forward * Time.deltaTime * speed;
+            transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.right);
+            transform.position += Vector3.right * Time.deltaTime * speed;
+            Debug.Log("Right");
         }
         else if (facingDirection == 2)
         {
-            transform.position += transform.forward * Time.deltaTime * speed;
+            transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.down);
+            transform.position -= Vector3.up * Time.deltaTime * speed;
+            Debug.Log("Down");
         }
-
-        if (alertMode == false)
+        else if (facingDirection == 3)
         {
-            speed = 1.0f;
+            transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.left);
+            transform.position -= Vector3.right * Time.deltaTime * speed;
+            Debug.Log("Left");
         }
         else
         {
+            Debug.Log("DAMNIT");
+        }
+
+
+        if (alertMode == false)
+        {
             speed = 2.0f;
+        }
+        else
+        {
+            speed = 3.0f;
         }
     }
 
-    private void PatrolMode()
+    private void ChangeDirection()
     {
-
+        Debug.Log("THINGY");
+        
+        if(patrolOrientation == "vertical")
+        {
+            orientation = (orientation == Orientation.UP) ? Orientation.DOWN : Orientation.UP;
+            Debug.Log("v");
+            facingDirection = (orientation == Orientation.UP) ? 0 : 2;
+        }
+        
+        if(patrolOrientation == "horizontal")
+        {
+            orientation = (orientation == Orientation.RIGHT) ? Orientation.LEFT : Orientation.RIGHT;
+            facingDirection = (orientation == Orientation.RIGHT) ? 1 : 3;
+        }
     }
 }
