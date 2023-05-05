@@ -16,6 +16,8 @@ public class Enemy : MonoBehaviour
     public int patrolLength;
     public Transform target;
     public Transform eyes;
+    private static Vector3 STARTING_POSITION;
+    private float cooldown;
 
     // Start is called before the first frame update
     void Start()
@@ -30,11 +32,14 @@ public class Enemy : MonoBehaviour
             orientation = Orientation.RIGHT;
             facingDirection = 1;
         }
+
+        STARTING_POSITION = transform.position;
     }
 
     // Update is called once per frame
     void Update()
     {
+        cooldown -= Time.deltaTime;
         timer += Time.deltaTime;
 
         if(timer >= patrolLength && alertMode == false)
@@ -55,7 +60,7 @@ public class Enemy : MonoBehaviour
         }
         else
         {
-            speed = 10.0f;
+            speed = 5.0f;
             ChaseMode();
         }
     }
@@ -82,22 +87,34 @@ public class Enemy : MonoBehaviour
         if(facingDirection == 0 && (angle < 95.0f && angle > 85.0f))
         {
             Debug.Log("Close looking up");
-            alertMode = true;
+            if(cooldown <= 0)
+            {
+                alertMode = true;
+            }
         }
         else if(facingDirection == 1 && angle < 5.0f)
         {
             Debug.Log("Close looking right");
-            alertMode = true;
+            if (cooldown <= 0)
+            {
+                alertMode = true;
+            }
         }
         else if(facingDirection == 2 && (angle < 95.0f && angle > 85.0f))
         {
             Debug.Log("Close looking down");
-            alertMode = true;
+            if (cooldown <= 0)
+            {
+                alertMode = true;
+            }
         }
         else if (facingDirection == 3 && angle > 175.0f)
         {
             Debug.Log("Close looking left");
-            alertMode = true;
+            if (cooldown <= 0)
+            {
+                alertMode = true;
+            }
         }
     }
     
@@ -142,12 +159,24 @@ public class Enemy : MonoBehaviour
 
         if(Input.GetKeyDown(KeyCode.E))
         {
+            cooldown = 3;
+            alertMode = false;
             ReturnToPost();
         }
     }
 
     private void ReturnToPost()
     {
-
+        Vector3 targetDir = STARTING_POSITION - transform.position;
+        float angle = Vector3.Angle(transform.position, targetDir);
+        if(transform.position != STARTING_POSITION)
+        {
+            transform.rotation = Quaternion.LookRotation(Vector3.forward, targetDir);
+            transform.position += targetDir * Time.deltaTime * speed;
+        }
+        else
+        {
+            PatrolMode();
+        }
     }
 }
