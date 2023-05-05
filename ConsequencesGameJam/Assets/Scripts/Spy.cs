@@ -1,17 +1,22 @@
+using UnityEngine.Audio;
 using UnityEngine;
 
 public class Spy : MonoBehaviour
 {
-    public bool crouch = false;
-    public float speed;
+    Rigidbody2D rb;
+    [SerializeField] bool crouch = false;
+    [SerializeField] float speed;
+    AudioSource walking;
+    [SerializeField] bool isMoving;
 
     void Start()
     {
-        
+        walking = GetComponent<AudioSource>();
     }
 
     void Update()
     {
+        
         //Crouch Speed
         if (crouch == true)
         {
@@ -23,22 +28,43 @@ public class Spy : MonoBehaviour
         }
 
         //Spy Movement
-        if (Input.GetAxis("Vertical") > 0)
+        if(Input.GetAxis("Vertical") > 0)
         {
             transform.position += transform.up * Time.deltaTime * speed;
+            isMoving = true;
         }
-        else if(Input.GetAxis("Vertical")  < 0)
+        else if(Input.GetAxis("Vertical") < 0)
         {
             transform.position -= transform.up * Time.deltaTime * speed;
-        } 
-
-        if (Input.GetAxis("Horizontal") > 0)
+            isMoving = true;
+        }
+       
+        
+        
+        if(Input.GetAxis("Horizontal") > 0)
         {
             transform.position += transform.right * Time.deltaTime * speed;
+            isMoving = true;
         }
         else if(Input.GetAxis("Horizontal") < 0)
         {
             transform.position -= transform.right * Time.deltaTime * speed;
+            isMoving = true;
+        }
+
+        if(Input.GetAxis("Horizontal") == 0 && Input.GetAxis("Vertical") == 0) 
+        { 
+            isMoving = false; 
+        }
+
+
+        if(isMoving == true && crouch == false && !walking.isPlaying) 
+        {
+            walking.Play();
+        }
+        else
+        {
+            walking.Stop();
         }
 
         //Toggle Crouch
