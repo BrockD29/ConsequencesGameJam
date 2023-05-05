@@ -14,6 +14,8 @@ public class Enemy : MonoBehaviour
     private enum Orientation { UP, DOWN, RIGHT, LEFT };
     private Orientation orientation;
     public int patrolLength;
+    public Transform target;
+    public Transform eyes;
 
     // Start is called before the first frame update
     void Start()
@@ -41,6 +43,66 @@ public class Enemy : MonoBehaviour
             timer = 0;
         }
 
+        if((Vector3.Distance(target.position, eyes.position)) <= 20) 
+        {
+            CheckForPlayer();
+        }
+        
+        if (alertMode == false)
+        {
+            speed = 2.0f;
+            PatrolMode();
+        }
+        else
+        {
+            speed = 10.0f;
+            ChaseMode();
+        }
+    }
+
+    private void ChangeDirection()
+    {     
+        if(patrolOrientation == "vertical")
+        {
+            orientation = (orientation == Orientation.UP) ? Orientation.DOWN : Orientation.UP;
+            facingDirection = (orientation == Orientation.UP) ? 0 : 2;
+        }
+        
+        if(patrolOrientation == "horizontal")
+        {
+            orientation = (orientation == Orientation.RIGHT) ? Orientation.LEFT : Orientation.RIGHT;
+            facingDirection = (orientation == Orientation.RIGHT) ? 1 : 3;
+        }
+    }
+
+    private void CheckForPlayer()
+    {
+        Vector3 targetDir = target.position - eyes.position;
+        float angle = Vector3.Angle(eyes.position, targetDir);
+        if(facingDirection == 0 && (angle < 95.0f && angle > 85.0f))
+        {
+            Debug.Log("Close looking up");
+            alertMode = true;
+        }
+        else if(facingDirection == 1 && angle < 5.0f)
+        {
+            Debug.Log("Close looking right");
+            alertMode = true;
+        }
+        else if(facingDirection == 2 && (angle < 95.0f && angle > 85.0f))
+        {
+            Debug.Log("Close looking down");
+            alertMode = true;
+        }
+        else if (facingDirection == 3 && angle > 175.0f)
+        {
+            Debug.Log("Close looking left");
+            alertMode = true;
+        }
+    }
+    
+    private void PatrolMode()
+    {
         if (facingDirection == 0)
         {
             transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
@@ -69,33 +131,13 @@ public class Enemy : MonoBehaviour
         {
             Debug.Log("DAMNIT");
         }
-
-
-        if (alertMode == false)
-        {
-            speed = 2.0f;
-        }
-        else
-        {
-            speed = 3.0f;
-        }
     }
 
-    private void ChangeDirection()
+    private void ChaseMode()
     {
-        Debug.Log("THINGY");
-        
-        if(patrolOrientation == "vertical")
-        {
-            orientation = (orientation == Orientation.UP) ? Orientation.DOWN : Orientation.UP;
-            Debug.Log("v");
-            facingDirection = (orientation == Orientation.UP) ? 0 : 2;
-        }
-        
-        if(patrolOrientation == "horizontal")
-        {
-            orientation = (orientation == Orientation.RIGHT) ? Orientation.LEFT : Orientation.RIGHT;
-            facingDirection = (orientation == Orientation.RIGHT) ? 1 : 3;
-        }
+        Vector3 targetDir = target.position - eyes.position;
+        float angle = Vector3.Angle(eyes.position, targetDir);
+        transform.rotation = Quaternion.LookRotation(Vector3.forward, targetDir);
+        transform.position += Vector3.forward * Time.deltaTime * speed;
     }
 }
