@@ -138,6 +138,16 @@ public class Enemy : MonoBehaviour
         Vector3 targetDir = target.position - eyes.position;
         float angle = Vector3.Angle(eyes.position, targetDir);
         transform.rotation = Quaternion.LookRotation(Vector3.forward, targetDir);
-        transform.position += Vector3.forward * Time.deltaTime * speed;
+        transform.position += targetDir * Time.deltaTime * speed;
+
+        if(Input.GetKeyDown(KeyCode.E))
+        {
+            ReturnToPost();
+        }
+    }
+
+    private void ReturnToPost()
+    {
+
     }
 }
